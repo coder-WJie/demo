@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        
+        function myFilter(obj){
+            let newObj = {}
+            Object.keys(obj).filter((key)=>{
+                return key !== 'sex'
+            }).forEach((key)=>{
+                if(obj[key])
+                Object.assign(newObj,obj)
+            })
+            // 测试1
+            // let temp = Object.keys(obj).filter((key)=>{
+            //     return key !== 'sex'
+            // })
+            // console.log(temp)
+            // 测试2
+            // console.log(newObj)
+            // obj.age = 20
+            // console.log(obj.age)
+            // console.log(newObj)
+            // console.log(newObj.age)
+            return newObj
+        }
+
+        // 测试用例
+        
+        // let obj1 = {
+        //     name:'dadf',
+        //     age:18
+        // }
+        // let obj2 = {
+        //     name:'dfffff',
+        //     age:19,
+        //     sex:'nan'
+        // }
+        // console.log(myFilter(obj2))
+        // obj2.age++
+        // console.log(myFilter(obj2))
+    </script>
+</body>
+</html>
