@@ -6,10 +6,10 @@ try {
   console.log('crypto support is disabled!');
 }
 
-export const encrypt = (secret) => {
-  const hash = crypto
-    .createHmac('sha256', secret)
-    .update('I love cupcakes')
+export const encrypt = (str) => {
+  let hash = crypto
+    .createHash('sha256')
+    .update(str)
     .digest('hex');
   return hash;
 };

@@ -1,5 +1,5 @@
 import Vue from 'vue';
-import { encrypt } from './utils/encrypt';
+import { encrypt } from './encrypt';
 import { debounce } from 'throttle-debounce';
 /**
  * TipManager类
@@ -69,21 +69,14 @@ class TipManager {
   setPlacement() {
     // 获取包含修饰符的对象
     let modifiers = this.binding.modifiers;
-    // 获取 el 元素宽高及内外边距用于计算位置
+    // 获取 el 元素和 tooltip 宽高用于计算位置
     let elStyle = getStyle(this.el);
     let el_border_width = Number(elStyle.borderWidth.slice(0, -2));
     let el_width = Number(elStyle.width.slice(0, -2));
     let el_height = Number(elStyle.height.slice(0, -2));
-    // 计算tooltip的基础数据
     let tipStyle = getStyle(this.textTipArea);
-    let tip_paddingTop = Number(tipStyle.paddingTop.slice(0, -2));
-    let tip_paddingBottom = Number(tipStyle.paddingBottom.slice(0, -2));
-    let tip_paddingLeft = Number(tipStyle.paddingLeft.slice(0, -2));
-    let tip_paddingRight = Number(tipStyle.paddingRight.slice(0, -2));
-    let tip_width =
-      Number(tipStyle.width.slice(0, -2)) + tip_paddingRight + tip_paddingLeft;  // 有问题
-    let tip_height =
-      Number(tipStyle.height.slice(0, -2)) + tip_paddingBottom + tip_paddingTop;
+    let tip_width = Number(tipStyle.width.slice(0, -2));
+    let tip_height = Number(tipStyle.height.slice(0, -2));
     // 是否传入显示位置修饰符，默认下方显示
     if (Object.keys(modifiers).length !== 0) {
       for (let attrs in modifiers) {
@@ -120,7 +113,7 @@ class TipManager {
 
     this.textTipArea.style.opacity = 1;
   }
-  
+
   hideTip() {
     this.textTipArea.style.opacity = 0;
     if (this.isKnown) {
@@ -148,7 +141,7 @@ function addconfirmedItem(tipTextEncoded) {
 const removeInvalidItem = debounce(550, (tipStatus, activeTipTextArr) => {
   for (var i = 0; i < tipStatus.length; i++) {
     if (!activeTipTextArr.includes(tipStatus[i])) {
-      tipStatus.splice(i, 1); 
+      tipStatus.splice(i, 1);
       i--; // 如果不减，将漏掉一个元素
     }
   }

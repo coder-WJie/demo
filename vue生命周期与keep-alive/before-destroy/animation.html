@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      * {
+        padding: 0;
+        margin: 0;
+      }
+      @keyframes example {
+        from {
+            left: 0px;
+          background-color: red;
+        }
+        to {
+          left: 150px;
+          background-color: yellow;
+        }
+      }
+      @keyframes right {
+        from {
+          left:150px;
+          background-color: yellow;
+        }
+        to {
+          /* transform: translateX(-100%); */
+          left: 0px;
+          background-color: red;
+        }
+      }
+      .container {
+        background-color: skyblue;
+        height: 510px;
+        width: 900px;
+        left: 200px;
+        top: 100px;
+        position: relative;
+      }
+      .container .aside {
+        background-color: pink;
+        width: 150px;
+        height: 90%;
+        position: absolute;
+        /* left: 0px; */
+        display: block;
+        /* animation: example 5s linear  ; */
+      }
+      .container .control {
+        position: absolute;
+        left: 300px;
+      }
+      .left {
+        animation: example 2s linear forwards;
+      }
+      .right {
+        animation: right 2s linear forwards;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="aside">侧边栏</div>
+      <div class="control">
+        <button class="show" onclick="show()">显示</button>
+        <button class="hide" onclick="hide()">隐藏</button>
+      </div>
+    </div>
+    <script>
+      let aside = document.querySelector('.aside');
+      let showBtn = document.querySelector('.show');
+      let hideBtn = document.querySelector('.hide');
+      function show() {
+          aside.classList.remove('right')
+        aside.classList.add('left');
+        
+        /* aside.style.animationName = 'example;'
+            aside.style['animation-duration'] = '5s;'
+            console.log('aside',aside.style.animation); */
+      }
+      function hide() {
+        aside.classList.remove('left');
+        aside.classList.add('right');
+        let w = window.getComputedStyle(aside).animation;
+        // aside.style.animationDirection = 'reverse'
+        // console.log('',);
+        console.log('w', w);
+      }
+    </script>
+  </body>
+</html>
