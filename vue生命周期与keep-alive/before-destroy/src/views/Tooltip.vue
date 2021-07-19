@@ -1,6 +1,6 @@
 <template>
   <div>
-    <button v-tip.bottom="'sdasdadsafdfdsdssdvsvcsvsxsaxs弹出框'" @click="tz">
+    <button v-tip="'sdasdsafdfdssdvcsxsaxs弹出框'" @click="tz">
       点击1
     </button>
     
@@ -19,7 +19,7 @@
     <br />
     <br />
     <br />
-    <button v-tip.bottom="status ? 'aasd' : 'ddssasa'" @click="tz">
+    <button v-tip.left="status ? 'aad' : 'ddsa'" @click="tz">
       点击3
     </button>
     <br />
@@ -32,7 +32,7 @@
     <br />
     <br />
     <br />
-    <button v-tip.bottom="'动阀dsada'" @click="tz">
+    <button v-tip.bottom="'动dsada'" @click="tz">
       点击3
     </button>
     <br />
@@ -42,7 +42,7 @@
     <br />
     <br />
     <br />
-    <button v-tip.bottom="'萨芬范德asdasadf萨'" @click="tz">
+    <button v-tip.bottom="'萨芬范德aasadf萨'" @click="tz">
       点击3
     </button>
     <br />
@@ -75,7 +75,7 @@ export default {
       message: '我是弹出框',
       count: 2,
       status: true,
-      rightText: '我是弹出框我i实际上v多家分店你啊三角地和操作，',
+      rightText: '我是弹出框我i实多家分店你啊三角地和操作，',
       visible: false,
     };
   },
@@ -102,6 +102,7 @@ div {
 button {
   width: 40px;
   height: 40px;
+  padding:5px 0px 0px 10px;
   margin: 0;
 }
 </style>

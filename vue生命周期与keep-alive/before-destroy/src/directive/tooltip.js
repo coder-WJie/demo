@@ -2,13 +2,23 @@ import Vue from 'vue';
 import { encrypt } from './utils/encrypt';
 import { debounce } from 'throttle-debounce';
 /**
- *
+ * TipManager类
+ * @class TipManager
+ * @param {HTMLElement} el - TipManager实例的父级DOM元素.
+ * @param {Object} binding
+ * @param {String} binding.value - 指令的绑定值，即提示文本
+ * @param {Object} binding.modifiers - 一个包含修饰符的对象，用来确定tooltip显示位置
+ * @return {Object} instance - 返回一个 TipManager 的实例
+ * @example
+ * <button v-tip="'我是提示框'"> </button>  默认在绑定DOM元素下方显示
+ * @example
+ * <button v-tip.left="'我是提示框'"></button>  传入修饰符，自定义提示框显示位置，可传入 top|right|bottom|left
  */
 class TipManager {
-  constructor(el, binding, tipTextEncoded) {
+  constructor(el, binding) {
     this.el = el;
     this.binding = binding;
-    this.tipTextEncoded = tipTextEncoded;
+    this.tipTextEncoded = encrypt(binding.value);
     this.isKnown = TipManager.tipStatus.includes(this.tipTextEncoded);
     this.initCreateTip();
   }
@@ -28,8 +38,7 @@ class TipManager {
     this.textTipArea.appendChild(this.button);
     this.el.appendChild(this.textTipArea);
     this.el.appendChild(this.circleTipArea);
-
-    this.addActiveTipItem();
+    TipManager.activeTipTextArr.push(this.tipTextEncoded);
     // 判断是否显示红圈提醒
     if (this.isKnown) {
       this.circleTipArea.style.display = 'none';
@@ -39,42 +48,25 @@ class TipManager {
         this.circleTipArea.style.display = 'none';
       }
     }
-    // 点击确认，不再显示 isKnown 标识需要记忆
-    // let this = this;
-    // 给文本提示框添加 transitionend事件
+    // 提示框淡入淡出效果
     this.textTipArea.addEventListener('transitionend', () => {
-      console.log(`----------transitionend------------`);
       this.textTipArea.style.display = 'none';
     });
     this.button.addEventListener('click', (event) => {
-      console.log('this', this);
       event.stopPropagation();
       this.isKnown = true;
       this.hideTip();
-      // 点击“确认”，存入状态
       addconfirmedItem(this.tipTextEncoded);
       removeInvalidItem(TipManager.tipStatus, TipManager.activeTipTextArr);
     });
   }
-  // 向activeTipTextArr 添加当前tooltip的文本
-  addActiveTipItem() {
-    TipManager.activeTipTextArr.push(this.tipTextEncoded);
-  }
-  // 用户是否已知此次更新
-  isKnown() {
-    console.log(`----------isKnown------------`);
-    return TipManager.tipStatus.includes(this.tipTextEncoded);
-  }
-  // 设置tooltip样式
   setStyle() {
     Vue.nextTick(() => {
-      // 计算位置
-      this.setTextTipAreaPlacement();
-      this.setCircleTipAreaPlacement();
+      this.setPlacement();
     }, 0);
   }
   // 设置文本提示显示位置
-  setTextTipAreaPlacement() {
+  setPlacement() {
     // 获取包含修饰符的对象
     let modifiers = this.binding.modifiers;
     // 获取 el 元素宽高及内外边距用于计算位置
@@ -89,7 +81,7 @@ class TipManager {
     let tip_paddingLeft = Number(tipStyle.paddingLeft.slice(0, -2));
     let tip_paddingRight = Number(tipStyle.paddingRight.slice(0, -2));
     let tip_width =
-      Number(tipStyle.width.slice(0, -2)) + tip_paddingRight + tip_paddingLeft;
+      Number(tipStyle.width.slice(0, -2)) + tip_paddingRight + tip_paddingLeft;  // 有问题
     let tip_height =
       Number(tipStyle.height.slice(0, -2)) + tip_paddingBottom + tip_paddingTop;
     // 是否传入显示位置修饰符，默认下方显示
@@ -117,15 +109,10 @@ class TipManager {
       let left = (el_width - tip_width) / 2 + 'px';
       this.textTipArea.style.cssText = `top: 0px;left: 0px;transform: translate(${left},${top});`;
     }
-  }
-  setCircleTipAreaPlacement() {
+    // 设置红点提示的样式
     this.circleTipArea.style.cssText += `top: 0px; right: 0px`;
   }
-  // 隐藏红圈提示
-  hideCircleTipArea() {
-    console.log(`----------hideCircleTipArea------------`, this.circleTipArea);
-  }
-  // 显示tooltip提示框
+
   showTip() {
     setTimeout(() => {
       this.textTipArea.style.display = 'block';
@@ -133,9 +120,8 @@ class TipManager {
 
     this.textTipArea.style.opacity = 1;
   }
-  // 隐藏tooltip提示框
+  
   hideTip() {
-    console.log(`----------hidetip------------`);
     this.textTipArea.style.opacity = 0;
     if (this.isKnown) {
       this.circleTipArea.style.display = 'none';
@@ -146,7 +132,6 @@ TipManager.tipStatus = getTipStatus();
 TipManager.activeTipTextArr = [];
 TipManager.tipCount = 0;
 
-// 获取localStorage中的tipStatus
 function getTipStatus() {
   return JSON.parse(localStorage.getItem('tipStatus'))
     ? JSON.parse(localStorage.getItem('tipStatus'))
@@ -163,18 +148,16 @@ function addconfirmedItem(tipTextEncoded) {
 const removeInvalidItem = debounce(550, (tipStatus, activeTipTextArr) => {
   for (var i = 0; i < tipStatus.length; i++) {
     if (!activeTipTextArr.includes(tipStatus[i])) {
-      tipStatus.splice(i, 1); // 将使后面的元素依次前移，数组长度减1
+      tipStatus.splice(i, 1); 
       i--; // 如果不减，将漏掉一个元素
     }
   }
   localStorage.removeItem('tipStatus');
   localStorage.setItem('tipStatus', JSON.stringify(tipStatus));
-  console.log(`----------清除之后的------------`, tipStatus);
 });
 
 // 获取 DOM 元素的宽高及内外边距
 function getStyle(dom) {
-  // getComputedStyle()方法获取的宽高不包括内边距
   let el_style = window.getComputedStyle(dom);
   let elStyle = {};
   elStyle.width = el_style.width;
@@ -184,22 +167,15 @@ function getStyle(dom) {
   elStyle.paddingRight = el_style.paddingRight;
   elStyle.paddingTop = el_style.paddingTop;
   elStyle.borderWidth = el_style.borderWidth;
-  // console.log('------------getStyle---------------');
   return elStyle;
 }
 
 let options = {
   bind(el, binding) {
-    // 对传入值 binding.value 进行编码，判断是否提示用户更新
-    let tipTextEncoded = encrypt(binding.value);
-    let tipManager = new TipManager(el, binding, tipTextEncoded);
-    // 设置样式
+    // 对传入值 binding.value 进行编码，将通过编码后的值是否存在于用户已“确认”的数组中来判断是否提示用户更新
+    let tipManager = new TipManager(el, binding);
     tipManager.setStyle();
 
-    // 把当前绑定的值存入一个数组，用来筛选出要删除的项
-    TipManager.activeTipTextArr.push(tipTextEncoded);
-
-    // 鼠标移入移出显示隐藏tooltip
     el.onmousemove = () => {
       if (!tipManager.isKnown) {
         tipManager.showTip();
